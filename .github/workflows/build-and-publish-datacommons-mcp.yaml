@@ -1,5 +1,5 @@
 # This workflow publishes datacommons-mcp to PyPI if the version was bumped and creates a tag.
-name: Check Version, Build, and Publish
+name: Build and Publish datacommons-mcp
 
 on:
   push:
@@ -67,9 +67,11 @@ jobs:
         run: uv build
 
       - name: Publish to PyPI
-        working-directory: packages/datacommons-mcp
         # Assumes you have trusted publishing set up on PyPI
-        run: uv publish
+        run: |
+          echo "Pretending to publish"
+          pwd
+        #run: uv publish
 
       - name: Create and Push Git Tag
         # This step only runs if the publish step above was successful
