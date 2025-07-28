@@ -43,4 +43,6 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag datacommons-mcp-v${{ steps.new.outputs.new_version }}
+          echo "Running `git remote -v`:"
+          git remote -v
           git push origin datacommons-mcp-v${{ steps.new.outputs.new_version }}
