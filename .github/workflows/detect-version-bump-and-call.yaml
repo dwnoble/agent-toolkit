@@ -1,0 +1,35 @@
+name: Detect Version Bump
+
+on:
+  push:
+    branches:
+      - main
+      - dwnoble
+
+jobs:
+  detect-version-bump-and-call:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Compare versions and check for bump
+        id: versions
+        run: |
+          # ... (this step is the same as before) ...
+          VERSION_FILE="packages/datacommons-mcp/datacommons_mcp/version.py"
+          NEW_VERSION=$(grep '__version__' $VERSION_FILE | sed 's/__version__ = "\(.*\)"/\1/')
+          OLD_VERSION=$(git show HEAD~1:$VERSION_FILE | grep '__version__' | sed 's/__version__ = "\(.*\)"/\1/') || true
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+            echo "bump=true" >> $GITHUB_OUTPUT
+          else
+            echo "bump=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call Publish Workflow
+        if: steps.versions.outputs.bump == 'true'
+        uses: ./.github/workflows/build-publish-and-tag.yml
+        with:
+          version: ${{ steps.versions.outputs.new_version }}
