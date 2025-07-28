@@ -8,6 +8,9 @@ on:
 
 jobs:
   detect-version-bump-and-call:
+    permissions:
+      contents: read # To checkout the code
+      actions: write # To trigger a workflow run
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
