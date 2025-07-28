@@ -50,7 +50,8 @@ jobs:
       - name: Publish to PyPI
         working-directory: packages/datacommons-mcp
         # Using trusted publishing (OIDC) is more secure
-        run: uv publish
+        run: echo "Pretending to publish"
+        #run: uv publish
 
       - name: Create Git Tag
         if: success() # Only run if the publish step was successful
