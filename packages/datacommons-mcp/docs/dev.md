@@ -20,6 +20,14 @@ cd packages/datacommons-mcp # navigate to package dir
 uv run fastmcp run datacommons_mcp/server.py:mcp -t (sse|stdio)
 ```
 
+### Run Unit Tests
+
+Run unit tests and evals using pyest:
+
+```
+uv run pytest
+```
+
 
 ### Test with MCP Inspector
 
