@@ -1,20 +1,18 @@
 [project]
-name = "datacommons-mcp"
+name = "datacommons-agents"
 dynamic = ["version"]
-description = "Data Commons MCP server."
+description = "Data Commons Sample Agents"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "fastmcp",
-    "requests",
-    "datacommons-client",
+    "google-adk",
+    "google-adk[eval]",
+    "datacommons-mcp",
 ]
 urls = {Homepage = "https://github.com/datacommonsorg/agent-toolkit"}
 
-[project.scripts]
-datacommons-mcp = "datacommons_mcp.cli:cli"
+#[project.scripts]
+#datacommons-agents = "datacommons_agents.cli:cli"
 
 [build-system]
 requires = ["uv", "setuptools"]
@@ -24,7 +22,7 @@ build-backend = "setuptools.build_meta"
 include-package-data = true
 
 [tool.setuptools.package-data]
-datacommons_mcp = ["*.json"]
+datacommons_mcp = ["*.evalset.json"]
 
 [tool.setuptools.dynamic]
-version = {attr = "datacommons_mcp.version.__version__"}
+version = {attr = "datacommons_agents.version.__version__"}
