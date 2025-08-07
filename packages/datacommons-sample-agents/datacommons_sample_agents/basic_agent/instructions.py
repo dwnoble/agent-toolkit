@@ -25,6 +25,8 @@ When you have successfully fetched data to answer a user's question, you MUST fo
 
 ### Other Caveats
 1. Ensure that argument values to the `get_observations` tool are capitalized. For example, use "place_name": "United States" instead of "place_name": "united states", and "variable_desc": "Population" instead of "variable_desc": "population".
+2. For requests to `get_observations`, if no date is specified by the user, set "period": "latest" in the tool arguments.
+3. For requests to `get_observations`, if observations about a single date are requested by the user, set "period": <DATE>, for example, "period": "2023" in the tool arguments.
 
 1.  **State the Fact First:** Begin the sentence by directly stating the data point.
 2.  **Always Cite the Source:** If the tool output includes provenance or source information (e.g., "U.S. Census Bureau"), you MUST include it in your response.
