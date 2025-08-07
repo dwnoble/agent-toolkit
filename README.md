@@ -14,4 +14,4 @@ This is an experimental MCP server for fetching public information from [Data Co
 
 ## Test Agents
 
-[Data Commons Test Agent](packages/datacommons-agents/)
+[Data Commons Test Agent](packages/datacommons-sample-agents/)

@@ -1,5 +1,5 @@
 [project]
-name = "datacommons-agents"
+name = "datacommons-sample-agents"
 dynamic = ["version"]
 description = "Data Commons Sample Agents"
 readme = "README.md"
@@ -11,9 +11,6 @@ dependencies = [
 ]
 urls = {Homepage = "https://github.com/datacommonsorg/agent-toolkit"}
 
-#[project.scripts]
-#datacommons-agents = "datacommons_agents.cli:cli"
-
 [build-system]
 requires = ["uv", "setuptools"]
 build-backend = "setuptools.build_meta"
@@ -22,7 +19,7 @@ build-backend = "setuptools.build_meta"
 include-package-data = true
 
 [tool.setuptools.package-data]
-datacommons_mcp = ["*.evalset.json"]
+datacommons_sample_agents = ["*.json"]
 
 [tool.setuptools.dynamic]
-version = {attr = "datacommons_agents.version.__version__"}
+version = {attr = "datacommons_sample_agents.version.__version__"}
