@@ -25,9 +25,9 @@ uv run fastmcp run datacommons_mcp/server.py:mcp -t (sse|stdio)
 Run unit tests and evals using pyest:
 
 ```
+export DC_API_KEY={YOUR_API_KEY}
 uv run pytest
 ```
-
 
 ### Test with MCP Inspector
 
@@ -60,6 +60,57 @@ The connection arguments should be prefilled with:
 * Transport Type = `STDIO`
 * Command = `uv`
 * Arguments = `run --with mcp mcp run datacommons_mcp/server.py`
+
+### Unit Testing
+
+This project uses `pytest` for unit testing.
+
+#### One-Time Setup
+
+For a smoother development experience, it's recommended to create a virtual environment and install the package in editable mode with its test dependencies. This allows your IDE to find the modules and provide features like autocompletion.
+
+From the root of the `dc-agent-toolkit` repository:
+
+```bash
+# 1. Create a virtual environment in the repo root
+uv venv
+
+# 2. Activate the virtual environment
+source .venv/bin/activate
+
+# 3. Install the package in editable mode with test dependencies
+uv pip install -e .[test]
+```
+
+Now your environment is ready for running tests.
+
+#### Run tests on the command line
+
+```bash
+# If you followed the one-time setup and activated the venv:
+pytest
+
+# Alternatively, if you haven't installed test dependencies in your venv:
+uv run --extra test pytest
+```
+
+#### Run and debug tests in VSCode:
+
+To setup:
+1. Select the Python Interpreter:
+   * Open the Command Palette (Cmd+Shift+P on macOS, Ctrl+Shift+P on Windows/Linux).
+   * Type "Python: Select Interpreter" and choose the one created by uv
+
+1. Configure the Test Runner:
+   * Open the Command Palette again.
+   * Type Python: Configure Tests and select pytest.
+      * When prompted, choose the `packages` directory.
+
+1.  Run and Debug from the Test Explorer:
+   * Open the Testing tab from the activity bar (it looks like a beaker).
+      * Click the "Refresh Tests" button if your tests haven't appeared.
+   * You can now run and debug tests! See [VSCode Testing documentation](https://code.visualstudio.com/docs/debugtest/testing#_run-and-debug-tests) for further instruction.
+
 
 ### DC client configuration
 
