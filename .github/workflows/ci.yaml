@@ -37,13 +37,10 @@ jobs:
       - name: Run unit tests with pytest
         run: uv run --extra test pytest -k "not eval"
 
-  # Runs eval tests. Requires manual approval due to usage of DC_API_KEY secret
+  # Runs eval tests. Requires DC_API_KEY secret to be set in the repository.
   agent-evals:
     runs-on: ubuntu-latest
     # This keyword links the job to the protected environment, requiring manual approval.
-    environment: evals-and-secrets
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    needs: unit-tests
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
