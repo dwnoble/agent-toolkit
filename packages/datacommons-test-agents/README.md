@@ -1,7 +1,7 @@
 
-# Data Commons Sample Agents
+# Data Commons Test Agents
 
-This directory contains a collection of sample agents built using the [Google Agent Development Kit (ADK)](https://github.com/google/agent-development-kit). These agents demonstrate how to interact with the Data Commons API to perform various tasks.
+This directory contains a collection of test agents built using the [Google Agent Development Kit (ADK)](https://github.com/google/agent-development-kit). These agents demonstrate how to interact with the Data Commons API to perform various tasks.
 
 ## Prerequisites
 
@@ -20,13 +20,13 @@ You can run the agents from the command line in two ways:
 1. **Using the ADK web runner:**
 
    ```bash
-   uv run adk web ./packages/datacommons-sample-agents/
+   uv run adk web ./packages/datacommons-test-agents/
    ```
 
 2. **Running the agent directly:**
 
    ```bash
-   uv run ./packages/datacommons-sample-agents/datacommons_sample_agents/basic_agent
+   uv run ./packages/datacommons-test-agents/datacommons_test_agents/basic_agent
    ```
 
 ## Evaluating Agents
@@ -41,7 +41,7 @@ uv run pytest
 
 ## Development
 
-You can use these sample agents as a starting point for building your own custom agents. Simply copy one of the existing agents and modify it to suit your needs.
+You can use these test agents as a starting point for building your own custom agents. Simply copy one of the existing agents and modify it to suit your needs.
 
 ## License
 

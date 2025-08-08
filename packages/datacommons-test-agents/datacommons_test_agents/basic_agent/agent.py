@@ -11,11 +11,14 @@ from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParamet
 
 from .instructions import AGENT_INSTRUCTIONS
 
-AGENT_MODEL = os.environ.get("AGENT_MODEL", "gemini-2.5-flash")
+# Environment variables for agent configuration
 DC_API_KEY = os.environ.get("DC_API_KEY")
 
 if not DC_API_KEY:
     raise ValueError("Required environment variable DC_API_KEY is not set")
+
+# Model for the agent
+AGENT_MODEL = "gemini-2.5-flash"
 
 # Initialize the agent
 root_agent = LlmAgent(
