@@ -7,16 +7,9 @@ on:
   push:
     branches:
       - main
-  # Add this block to allow for manual triggering
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "Pull Request number to run tests on"
-        required: true
-        type: number
 
 jobs:
-  ci-checks:
+  unit-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -49,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     # This keyword links the job to the protected environment, requiring manual approval.
     environment: evals-and-secrets
-    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
