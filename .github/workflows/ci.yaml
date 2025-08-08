@@ -41,6 +41,8 @@ jobs:
   agent-evals:
     runs-on: ubuntu-latest
     # This keyword links the job to the protected environment, requiring manual approval.
+    environment: evals-and-secrets
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
