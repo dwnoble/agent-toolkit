@@ -8,7 +8,7 @@ parent_path = pathlib.Path(__file__).parent
 async def test_basic_agent():
     """Test the agent's basic ability via a session file."""
     await AgentEvaluator.evaluate(
-        agent_module="datacommons_test_agents.basic_agent",
+        agent_module="datacommons_test_agents.basic_agent.bootstrap",
         eval_dataset_file_path_or_dir=str(
             parent_path / "data/"
         )

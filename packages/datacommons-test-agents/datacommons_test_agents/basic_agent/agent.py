@@ -23,7 +23,7 @@ AGENT_MODEL = "gemini-2.5-flash"
 # Initialize the agent
 root_agent = LlmAgent(
     model=AGENT_MODEL,
-    name="dc_agent",
+    name="basic_agent",
     instruction=AGENT_INSTRUCTIONS,
     tools=[
         MCPToolset(

@@ -26,7 +26,7 @@ You can run the agents from the command line in two ways:
 2. **Running the agent directly:**
 
    ```bash
-   uv run ./packages/datacommons-test-agents/datacommons_test_agents/basic_agent
+   uv run adk run ./packages/datacommons-test-agents/datacommons_test_agents/basic_agent
    ```
 
 ## Evaluating Agents
