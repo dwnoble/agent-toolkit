@@ -1,13 +1,18 @@
 name: Run CI Checks
 
 on:
+  # Use pull_request_target to get access to secrets for PRs from forks.
   pull_request_target:
     branches:
       - main
   push:
     branches:
       - main
-  workflow_dispatch: # lets a maintainer manually run the secreted tests
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to run tests for"
+        required: true
 
 jobs:
   unit-tests:
@@ -38,17 +43,35 @@ jobs:
       - name: Run unit tests with pytest
         run: uv run --extra test pytest -k "not eval"
 
-  # Runs eval tests. Requires DC_API_KEY secret to be set in the repository.
+  # Runs eval tests. Requires DC_API_KEY secret to be set in the protected environment.
   agent-evals:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.actor_association != 'NONE' && github.event.pull_request.head.repo.fork == false)
+    # Only run this job for PRs or manual dispatches.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
-    # This keyword links the job to the protected environment, requiring manual approval.
+    # This links the job to the protected environment, requiring approval for outside collaborators.
     environment: evals-and-secrets
     permissions:
+      # Required to check out the PR code.
       contents: read
+      # Required for the 'gh' CLI to read PR data.
+      pull-requests: read
     steps:
-      - name: Checkout code
+      - name: Get PR's HEAD SHA for manual run
+        if: github.event_name == 'workflow_dispatch'
+        id: get_pr_sha
+        run: |
+          PR_SHA=$(gh pr view ${{ github.event.inputs.pr }} --json headRefOid -q '.headRefOid')
+          echo "sha=$PR_SHA" >> "$GITHUB_OUTPUT"
+        env:
+          # The GITHUB_TOKEN is automatically provided and has the necessary permissions.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout PR code
         uses: actions/checkout@v4
+        with:
+          # This is CRUCIAL. It checks out the actual head of the PR, not the base branch.
+          # It conditionally finds the correct commit SHA based on the trigger type.
+          ref: ${{ github.event_name == 'workflow_dispatch' && steps.get_pr_sha.outputs.sha || github.event.pull_request.head.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -61,4 +84,5 @@ jobs:
       - name: Run agent evals with pytest
         run: uv run --extra test pytest -k "eval"
         env:
+          # This secret will be securely supplied by the 'evals-and-secrets' environment.
           DC_API_KEY: ${{ secrets.DC_API_KEY }}
