@@ -1,17 +1,13 @@
 name: Run CI Checks
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
   push:
     branches:
       - main
-  workflow_dispatch: # lets a maintainer manually run the secreted tests
-    inputs:
-      pr:
-        description: "PR number to verify"
-        required: true
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
@@ -43,12 +39,10 @@ jobs:
 
   # Runs eval tests. Requires DC_API_KEY secret to be set in the repository.
   agent-evals:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.actor_association != 'NONE' && github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     # This keyword links the job to the protected environment, requiring manual approval.
     environment: evals-and-secrets
-    permissions:
-      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
