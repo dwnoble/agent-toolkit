@@ -1,13 +1,13 @@
 [
   {
-    "query": "What's the population of California?",
+    "query": "What is the population of California??",
     "expected_tool_use": [
       {
         "tool_name": "get_observations",
         "tool_input": {
           "period": "latest",
           "place_name": "California",
-          "variable_desc": "Population"
+          "variable_dcid": "Count_Person"
         }
       }
     ],
@@ -19,9 +19,10 @@
       {
         "tool_name": "get_observations",
         "tool_input": {
-          "period": "2023",
+          "end_date": "2023",
+          "start_date": "2023",
           "place_name": "California",
-          "variable_desc": "Population"
+          "variable_dcid": "Count_Person"
         }
       }
     ],

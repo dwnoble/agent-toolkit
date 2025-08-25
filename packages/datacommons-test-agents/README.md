@@ -13,6 +13,8 @@ Once you have your API key, set it as an environment variable:
 export DC_API_KEY=<your key>
 ```
 
+Additionally, ensure a [Gemini API key is set in your environment](https://google.github.io/adk-docs/get-started/quickstart/#env)
+
 ## Getting Started
 
 You can run the agents from the command line in two ways:
@@ -31,10 +33,10 @@ You can run the agents from the command line in two ways:
 
 ## Evaluating Agents
 
-To run the agent evaluations, use pytest:
+To run the agent evaluations, use pytest.
 
 ```bash
-uv run pytest
+uv run pytest -k "eval"
 ```
 
 **Note:** You must have your `DC_API_KEY` environment variable set to run the evaluations, just as you do for running the agents.
