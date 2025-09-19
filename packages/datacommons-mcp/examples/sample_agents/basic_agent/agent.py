@@ -1,5 +1,5 @@
 """
-Basic Aagent implementation for interacting with Data Commons over MCP.
+Basic Agent implementation for interacting with Data Commons over MCP.
 """
 
 import os
