@@ -21,5 +21,5 @@ export GEMINI_API_KEY="<your-gemini-key>"
 Run the pytest evaluation suite.
 
 ```bash
-uv run pytest -k "eval"
+uv run --extra test pytest -k "eval"
 ```
