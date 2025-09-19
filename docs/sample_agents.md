@@ -37,6 +37,4 @@ uv run adk web ./packages/datacommons-mcp/examples/sample_agents/
 
 Runs a single agent directly from the command line.
 
-```
 uv run adk run ./packages/datacommons-mcp/examples/sample_agents/basic_agent
-```
