@@ -30,7 +30,7 @@ All commands must be run from the repository root.
 Serves all agents in the directory via the ADK web UI.
 
 ```bash
-uv run adk web ./packages/datacommons-mcp/examples/sample_agents/
+uvx --from google-adk adk web ./packages/datacommons-mcp/examples/sample_agents/
 ```
 
 2.  ADK CLI Runner
@@ -38,5 +38,5 @@ uv run adk web ./packages/datacommons-mcp/examples/sample_agents/
 Runs a single agent directly from the command line.
 
 ```bash
-uv run adk run ./packages/datacommons-mcp/examples/sample_agents/basic_agent
+uvx --from google-adk adk run ./packages/datacommons-mcp/examples/sample_agents/basic_agent
 ```
