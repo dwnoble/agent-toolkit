@@ -24,6 +24,8 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
+  "google-adk",
+  "google-adk[eval]",
   "pytest>=8.4.1",
   "pytest-asyncio>=1.1.0",
 ]
