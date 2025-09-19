@@ -3,8 +3,6 @@ import pathlib
 import pytest
 from google.adk.evaluation.agent_evaluator import AgentEvaluator
 
-parent_path = pathlib.Path(__file__).parent
-
 GET_OBSERVATIONS_DATA_DIR = pathlib.Path(__file__).parent / "data/get_observations"
 TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*.test.json"))
 

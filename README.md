@@ -7,5 +7,10 @@ This repo contains the MCP tools for fetching public information from [Data Comm
 [Data Commons MCP Server package](packages/datacommons-mcp/)
 * PyPI: https://pypi.org/project/datacommons-mcp
 
-[Docs](docs/get_started.md)
+
+## Docs
+
+* [Getting Started](docs/get_started.md)
+* [Developer's Guide](docs/dev.md)
+* [Evaluation Guide](docs/evals.md)
 
