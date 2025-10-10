@@ -1,23 +1,3 @@
-# import pathlib
-
-# import pytest
-##from google.adk.evaluation.agent_evaluator import AgentEvaluator
-# from evals.evaluator.agent_evaluator import AgentEvaluator
-
-# GET_OBSERVATIONS_DATA_DIR = pathlib.Path(__file__).parent / "data/get_observations"
-##TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*.test.json"))
-# TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*dan_params.test.json"))
-
-# @pytest.mark.parametrize("path", TEST_FILES, ids=lambda p: p.name)
-# @pytest.mark.asyncio
-# async def test_test_tool_agent(path: pathlib.Path) -> None:
-#    """Test the agent's basic ability via a session file."""
-#    await AgentEvaluator.evaluate(
-#        agent_module="evals.test_tool_agent.bootstrap",
-#        eval_dataset_file_path_or_dir=str(path),
-#        num_runs=2,
-#    )
-
 import pathlib
 
 import pandas as pd
@@ -28,7 +8,6 @@ from evals.evaluator.agent_evaluator import AgentEvaluator
 
 # --- Configuration ---
 GET_OBSERVATIONS_DATA_DIR = pathlib.Path(__file__).parent / "data/get_observations"
-# TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*dan_params.test.json"))
 TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*.test.json"))
 REPORT_OUTPUT_DIR = "reports/"
 REPORT_OUTPUT_BASE_FILENAME = "test_evaluation_report"
@@ -90,12 +69,12 @@ class TestAgentEvaluation:
                     if "metric_name" in result_df.columns
                     else ["unknown"]
                 )
-                assert False, (
+                pytest.fail(
                     f"Evaluation FAILED for {path.name}. Failed metrics: {list(failed_metrics)}. {len(failed_rows)} failed evaluations found."
                 )
 
     @classmethod
-    def teardown_class(cls):
+    def teardown_class(cls) -> None:
         """
         Pytest hook that runs once after all test methods in the class are done.
         This is the perfect place to generate the final report.
@@ -116,15 +95,14 @@ class TestAgentEvaluation:
             # Make report output directory if it doesn't exist
             pathlib.Path(REPORT_OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
             # Write output path with a timestamp
-            REPORT_OUTPUT_PATH = (
+            report_output_path = (
                 pathlib.Path(REPORT_OUTPUT_DIR)
                 / f"{REPORT_OUTPUT_BASE_FILENAME}-{pd.Timestamp.now().strftime('%Y%m%d-%H%M%S')}.html"
             )
-            # final_report_df.to_html(REPORT_OUTPUT_PATH, index=False, border=1)
-            create_styled_html_report(final_report_df, REPORT_OUTPUT_PATH)
-            print(f"✅ Report successfully generated at: {REPORT_OUTPUT_PATH}")
+            create_styled_html_report(final_report_df, report_output_path)
+            print(f"✅ Report successfully generated at: {report_output_path}")
             # Write to CSV as well for easier data manipulation
-            csv_path = REPORT_OUTPUT_PATH.with_suffix(".csv")
+            csv_path = report_output_path.with_suffix(".csv")
             final_report_df.to_csv(csv_path, index=False)
             print(f"✅ CSV report generated at: {csv_path}")
         except Exception as e:

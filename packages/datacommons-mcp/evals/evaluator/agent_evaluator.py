@@ -19,8 +19,6 @@ import json
 import logging
 import os
 import statistics
-import uuid
-from typing import Any
 
 try:
     import pandas as pd
@@ -29,6 +27,7 @@ except ModuleNotFoundError as e:
 
 
 from google.adk.agents.base_agent import BaseAgent
+from google.adk.evaluation.agent_evaluator import AgentEvaluator as AdkAgentEvaluator
 from google.adk.evaluation.constants import MISSING_EVAL_DEPENDENCIES_MESSAGE
 from google.adk.evaluation.eval_case import IntermediateData, Invocation
 from google.adk.evaluation.eval_metrics import (
@@ -40,9 +39,6 @@ from google.adk.evaluation.eval_result import EvalCaseResult
 from google.adk.evaluation.eval_set import EvalSet
 from google.adk.evaluation.eval_sets_manager import EvalSetsManager
 from google.adk.evaluation.in_memory_eval_sets_manager import InMemoryEvalSetsManager
-from google.adk.evaluation.local_eval_sets_manager import (
-    convert_eval_set_to_pydanctic_schema,
-)
 from google.adk.utils.context_utils import Aclosing
 from google.genai import types as genai_types
 from pydantic import BaseModel
@@ -99,7 +95,7 @@ class AgentEvaluator:
     """An evaluator for Agents, mainly intended for helping with test cases."""
 
     @staticmethod
-    def find_config_for_test_file(test_file: str):
+    def find_config_for_test_file(test_file: str) -> dict[str, float]:
         """Find the test_config.json file in the same folder as the test file."""
         test_folder = os.path.dirname(test_file)
         config_path = os.path.join(test_folder, "test_config.json")
@@ -120,7 +116,7 @@ class AgentEvaluator:
         criteria: dict[str, float],
         num_runs: int = NUM_RUNS,
         agent_name: str | None = None,
-    ):
+    ) -> pd.DataFrame:
         """Evaluates an agent using the given EvalSet.
 
         Returns a pandas DataFrame with the evaluation results.
@@ -153,7 +149,7 @@ class AgentEvaluator:
         )
 
         # Step 2: Post-process the results
-        for _, eval_results_per_eval_id in eval_results_by_eval_id.items():
+        for eval_results_per_eval_id in eval_results_by_eval_id.values():
             eval_metric_results = (
                 AgentEvaluator._get_eval_metric_results_with_invocation(
                     eval_results_per_eval_id
@@ -185,124 +181,18 @@ class AgentEvaluator:
 
         # 1. Gather all test files from the given path
         criteria = AgentEvaluator.find_config_for_test_file(eval_dataset_path)
-        eval_set = AgentEvaluator._get_eval_set_from_old_format(
+        eval_set = AdkAgentEvaluator._get_eval_set_from_old_format(
             eval_dataset_path, criteria, {}
         )
 
         # 2. Capture the DataFrame returned by `evaluate_eval_set`
-        result_df = await AgentEvaluator.evaluate_eval_set(
+        return await AgentEvaluator.evaluate_eval_set(
             agent_module=agent_module,
             eval_set=eval_set,
             criteria=criteria,
             num_runs=num_runs,
             agent_name=agent_name,
         )
-
-        return result_df
-
-    @staticmethod
-    def _get_eval_set_from_old_format(
-        eval_set_file: str,
-        criteria: dict[str, float],
-        initial_session: dict[str, Any],
-    ) -> EvalSet:
-        data = AgentEvaluator._load_dataset(eval_set_file)[0]
-        AgentEvaluator._validate_input([data], criteria)
-        eval_data = {
-            "name": eval_set_file,
-            "data": data,
-            "initial_session": initial_session,
-        }
-        return convert_eval_set_to_pydanctic_schema(
-            eval_set_id=str(uuid.uuid4()), eval_set_in_json_format=[eval_data]
-        )
-
-    @staticmethod
-    def _get_initial_session(initial_session_file: str | None = None):
-        initial_session = {}
-        if initial_session_file:
-            with open(initial_session_file) as f:
-                initial_session = json.loads(f.read())
-        return initial_session
-
-    @staticmethod
-    def _load_dataset(
-        input_data: str | list[str] | list[dict] | list[list[dict]],
-    ) -> list[list[dict]]:
-        def load_json_file(file_path: str) -> list[dict]:
-            data = load_json(file_path)
-            if not isinstance(data, list) or not all(isinstance(d, dict) for d in data):
-                raise ValueError(f"{file_path} must contain a list of dictionaries.")
-            return data
-
-        if isinstance(input_data, str):
-            if os.path.isdir(input_data):
-                test_files = []
-                for root, _, files in os.walk(input_data):
-                    for file in files:
-                        if file.endswith(".test.json"):
-                            test_files.append(os.path.join(root, file))
-                return [load_json_file(f) for f in test_files]
-            if os.path.isfile(input_data):
-                return [load_json_file(input_data)]
-            raise ValueError(f"Input path {input_data} is invalid.")
-        if isinstance(input_data, list):
-            if all(isinstance(i, str) and os.path.isfile(i) for i in input_data):
-                return [load_json_file(i) for i in input_data]
-            raise TypeError("Input list must contain valid file paths.")
-        raise TypeError("Invalid input type for dataset loading.")
-
-    @staticmethod
-    def _validate_input(eval_dataset, criteria):
-        """Validates that the evaluation criteria align with the provided dataset.
-
-        For efficiency, we only use first row to validate input.
-        """
-        if not eval_dataset:
-            raise ValueError("The evaluation dataset is None or empty.")
-
-        for key in criteria:
-            if key not in ALLOWED_CRITERIA:
-                raise ValueError(
-                    f"Invalid criteria key: {key}. Expected one of {ALLOWED_CRITERIA}."
-                )
-
-        if not eval_dataset:
-            raise ValueError("The evaluation dataset is empty.")
-        sample = eval_dataset[0]
-        first_query = sample[0]
-
-        if not isinstance(sample, list) and not isinstance(first_query, dict):
-            raise ValueError(
-                "Each evaluation dataset sample must be list of dictionary. But it's"
-                f" {eval_dataset}"
-            )
-
-        if TOOL_TRAJECTORY_SCORE_KEY in criteria:
-            if (
-                QUERY_COLUMN not in first_query
-                or EXPECTED_TOOL_USE_COLUMN not in first_query
-            ):
-                raise ValueError(
-                    f"Samples for {TOOL_TRAJECTORY_SCORE_KEY} must include"
-                    f" '{QUERY_COLUMN}' and '{EXPECTED_TOOL_USE_COLUMN}' keys. The"
-                    f" sample is {sample}."
-                )
-
-        if RESPONSE_EVALUATION_SCORE_KEY in criteria:
-            if QUERY_COLUMN not in first_query:
-                raise ValueError(
-                    f"Samples for {RESPONSE_EVALUATION_SCORE_KEY} must include"
-                    f" '{QUERY_COLUMN}' key. The sample is {sample}."
-                )
-
-        if RESPONSE_MATCH_SCORE_KEY in criteria:
-            if QUERY_COLUMN not in first_query or REFERENCE_COLUMN not in first_query:
-                raise ValueError(
-                    f"Samples for {RESPONSE_MATCH_SCORE_KEY} must include"
-                    f" '{QUERY_COLUMN}' and '{REFERENCE_COLUMN}' keys. The sample is"
-                    f" {sample}."
-                )
 
     @staticmethod
     def _convert_content_to_text(content: genai_types.Content | None) -> str:
@@ -316,18 +206,8 @@ class AgentEvaluator:
         intermediate_data: IntermediateData | None,
     ) -> str:
         if intermediate_data and intermediate_data.tool_uses:
-            # TODO: Improve formatting for better readability
-            # Current format: id='adk-f2b322b5-9d34-443b-9010-d02641f5c3b8' args={'query': 'Population', 'places': ['California, USA']} name='search_indicators'
-            # Desired format: Tool: search_indicators\nArgs: {'query': 'Population', 'places': ['California, USA']}
-            #
-            # Suggested implementation:
-            formatted_tools = []
-            for tool in intermediate_data.tool_uses:
-                formatted_tools.append(f"Tool: {tool.name}\nArgs: {tool.args}")
+            formatted_tools = [f"Tool: {tool.name}\nArgs: {tool.args}" for tool in intermediate_data.tool_uses]
             return "\n\n".join(formatted_tools)
-
-            # return "\n".join([str(t) for t in intermediate_data.tool_uses])
-
         return ""
 
     @staticmethod
@@ -408,8 +288,7 @@ class AgentEvaluator:
             async with Aclosing(
                 eval_service.perform_inference(inference_request=inference_request)
             ) as agen:
-                async for inference_result in agen:
-                    inference_results.append(inference_result)
+                inference_results.extend(inference_result async for inference_result in agen)
 
         # Evaluate metrics
         # As we perform more than one run for an eval case, we collect eval results
