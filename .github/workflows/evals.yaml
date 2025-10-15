@@ -4,7 +4,7 @@ name: Run Agent Evals
 on:
   # This workflow ONLY runs on pull_request_target for security.
   # It runs the workflow defined in the 'main' branch, not the one from the PR.
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
