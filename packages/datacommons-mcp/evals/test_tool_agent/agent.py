@@ -23,7 +23,7 @@ if not DC_API_KEY:
     raise ValueError("Required environment variable DC_API_KEY is not set")
 
 # Model for the agent
-AGENT_MODEL = "gemini-2.5-flash-lite"
+AGENT_MODEL = "gemini-2.5-flash"
 
 # Initialize the agent
 root_agent = LlmAgent(

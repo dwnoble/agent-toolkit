@@ -206,8 +206,13 @@ class AgentEvaluator:
         intermediate_data: IntermediateData | None,
     ) -> str:
         if intermediate_data and intermediate_data.tool_uses:
-            formatted_tools = [f"Tool: {tool.name}\nArgs: {tool.args}" for tool in intermediate_data.tool_uses]
+            formatted_tools = [
+                f"Tool: {tool.name}\nArgs: {tool.args}"
+                for tool in intermediate_data.tool_uses
+            ]
+
             return "\n\n".join(formatted_tools)
+
         return ""
 
     @staticmethod
@@ -288,7 +293,8 @@ class AgentEvaluator:
             async with Aclosing(
                 eval_service.perform_inference(inference_request=inference_request)
             ) as agen:
-                inference_results.extend(inference_result async for inference_result in agen)
+                async for inference_result in agen:
+                    inference_results.append(inference_result)
 
         # Evaluate metrics
         # As we perform more than one run for an eval case, we collect eval results
