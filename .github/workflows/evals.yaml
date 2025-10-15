@@ -63,3 +63,15 @@ jobs:
         env:
           DC_API_KEY: ${{ secrets.DC_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+      - name: Upload evaluation reports
+        uses: actions/upload-artifact@v4
+        with:
+          # A more general name for the artifact
+          name: agent-eval-reports
+
+          # Add the CSV pattern on a new line
+          path: |
+            reports/evaluation-report-*.html
+            reports/evaluation-report-*.csv
+          if-no-files-found: error

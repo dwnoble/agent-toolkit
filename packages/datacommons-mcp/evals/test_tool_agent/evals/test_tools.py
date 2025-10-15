@@ -10,7 +10,7 @@ from evals.evaluator.agent_evaluator import AgentEvaluator
 GET_OBSERVATIONS_DATA_DIR = pathlib.Path(__file__).parent / "data/get_observations"
 TEST_FILES = sorted(GET_OBSERVATIONS_DATA_DIR.glob("*.test.json"))
 REPORT_OUTPUT_DIR = "reports/"
-REPORT_OUTPUT_BASE_FILENAME = "test_evaluation_report"
+REPORT_OUTPUT_BASE_FILENAME = "evaluation-report"
 
 
 # --- Test Class for Evaluation and Reporting ---
