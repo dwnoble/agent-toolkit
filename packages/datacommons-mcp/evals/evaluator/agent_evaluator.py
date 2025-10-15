@@ -294,7 +294,7 @@ class AgentEvaluator:
                 eval_service.perform_inference(inference_request=inference_request)
             ) as agen:
                 async for inference_result in agen:
-                    inference_results.append(inference_result)
+                    inference_results.extend([inference_result])
 
         # Evaluate metrics
         # As we perform more than one run for an eval case, we collect eval results
