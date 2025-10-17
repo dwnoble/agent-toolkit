@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+A custom fork of the google.adk.evaluation.agent_evaluator.
+
+This version is modified to return evaluation results as a pandas.DataFrame
+instead of running assertions directly. This enables the test runner to
+collect, aggregate, and generate persistent reports (e.g., HTML, CSV)
+from the results.
+
+Based off of https://github.com/google/adk-python/blob/8b3ed059c24903e8aca0a09d9d503b48af7df850/src/google/adk/evaluation/agent_evaluator.py
+"""
+
 from __future__ import annotations
 
 import importlib
