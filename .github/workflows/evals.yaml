@@ -57,15 +57,17 @@ jobs:
         run: pip install uv
 
       - name: Run agent evals with pytest
-        # This condition ensures the step runs even if the pytest step failed,
-        # but only if the tests were meant to run in the first place.
-        if: always() && steps.filter.outputs.run_evals == 'true'
+        # Run evals if code in the datacommons-mcp package or evals directory changed
+        if: steps.filter.outputs.run_evals == 'true'
         run: uv run --extra test pytest -k "eval"
         env:
           DC_API_KEY: ${{ secrets.DC_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
       - name: Upload evaluation reports
+        # This condition ensures the step runs even if the pytest step failed,
+        # but only if the tests were meant to run in the first place.
+        if: always() && steps.filter.outputs.run_evals == 'true'
         uses: actions/upload-artifact@v4
         with:
           # A more general name for the artifact
