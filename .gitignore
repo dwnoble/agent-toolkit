@@ -184,7 +184,8 @@ ehthumbs.db
 Thumbs.db
 
 # IDE files
-.vscode
+.vscode/*
+!.vscode/launch.json
 /.idea/
 
 # Gemini
@@ -193,3 +194,5 @@ gemini.md
 
 # Temporary files
 /tmp/
+reports/
+

@@ -27,7 +27,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import requests
 from datacommons_client.client import DataCommonsClient
-from datacommons_mcp.clients import DCClient, _trim_rc_from_version, create_dc_client
+from datacommons_mcp.clients import SURFACE_HEADER_VALUE, DCClient, create_dc_client
 from datacommons_mcp.data_models.enums import SearchScope
 from datacommons_mcp.data_models.observations import (
     ObservationDateType,
@@ -41,19 +41,6 @@ from datacommons_mcp.data_models.search import (
     SearchVariable,
 )
 from datacommons_mcp.data_models.settings import BaseDCSettings, CustomDCSettings
-from datacommons_mcp.version import __version__
-
-
-@pytest.fixture
-def isolated_env(tmp_path, monkeypatch):
-    """A fixture to isolate tests from .env files and existing env vars."""
-    monkeypatch.chdir(tmp_path)
-
-    # This inner function will be the fixture's return value
-    def _patch_env(env_vars):
-        return patch.dict(os.environ, env_vars, clear=True)
-
-    return _patch_env
 
 
 @pytest.fixture
@@ -1596,11 +1583,11 @@ class TestCreateDCClient:
     @patch("datacommons_mcp.clients.DataCommonsClient")
     @patch("datacommons_mcp.clients.read_topic_caches")
     def test_create_dc_client_base_dc(
-        self, mock_read_caches: Mock, mock_dc_client: Mock, isolated_env
+        self, mock_read_caches: Mock, mock_dc_client: Mock
     ):
         """Test base DC creation with defaults."""
         # Arrange
-        with isolated_env({"DC_API_KEY": "test_api_key", "DC_TYPE": "base"}):
+        with patch.dict(os.environ, {"DC_API_KEY": "test_api_key", "DC_TYPE": "base"}):
             settings = BaseDCSettings()
             mock_dc_instance = Mock()
             mock_dc_client.return_value = mock_dc_instance
@@ -1618,13 +1605,13 @@ class TestCreateDCClient:
             assert result.use_search_indicators_endpoint is True  # Default value
             mock_dc_client.assert_called_with(
                 api_key="test_api_key",
-                surface_header_value=f"mcp-{_trim_rc_from_version(__version__)}",
+                surface_header_value=SURFACE_HEADER_VALUE,
             )
 
     @patch("datacommons_mcp.clients.DataCommonsClient")
     @patch("datacommons_mcp.clients.create_topic_store")
     def test_create_dc_client_custom_dc(
-        self, mock_create_store: Mock, mock_dc_client: Mock, isolated_env
+        self, mock_create_store: Mock, mock_dc_client: Mock
     ):
         """Test custom DC creation with defaults."""
         # Arrange
@@ -1633,7 +1620,7 @@ class TestCreateDCClient:
             "DC_TYPE": "custom",
             "CUSTOM_DC_URL": "https://staging-datacommons-web-service-650536812276.northamerica-northeast1.run.app",
         }
-        with isolated_env(env_vars):
+        with patch.dict(os.environ, env_vars):
             settings = CustomDCSettings()
             mock_dc_instance = Mock()
             mock_dc_client.return_value = mock_dc_instance
@@ -1658,7 +1645,7 @@ class TestCreateDCClient:
             expected_api_url = "https://staging-datacommons-web-service-650536812276.northamerica-northeast1.run.app/core/api/v2/"
             mock_dc_client.assert_called_with(
                 url=expected_api_url,
-                surface_header_value=f"mcp-{_trim_rc_from_version(__version__)}",
+                surface_header_value=SURFACE_HEADER_VALUE,
             )
 
     @patch("datacommons_mcp.clients.DataCommonsClient")
@@ -1712,7 +1699,7 @@ class TestCreateDCClient:
             expected_api_url = "https://example.com/core/api/v2/"
             mock_dc_client.assert_called_with(
                 url=expected_api_url,
-                surface_header_value=f"mcp-{_trim_rc_from_version(__version__)}",
+                surface_header_value=SURFACE_HEADER_VALUE,
             )
 
     @patch("datacommons_mcp.clients.DataCommonsClient")
@@ -1773,12 +1760,11 @@ class TestCreateDCClient:
         mock_create_base_store: Mock,
         mock_dc_client: Mock,
         test_case: dict,
-        isolated_env,
     ):
         """Test that topic store creation calls match search scope."""
         # Arrange
         env_vars = test_case["env_vars"]
-        with isolated_env(env_vars):
+        with patch.dict(os.environ, env_vars):
             settings = (
                 BaseDCSettings()
                 if test_case["dc_type"] == "base"

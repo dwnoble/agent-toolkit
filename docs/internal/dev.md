@@ -21,6 +21,32 @@ cd packages/datacommons-mcp # navigate to package dir
 uv run fastmcp run datacommons_mcp/server.py:mcp -t (http|stdio)
 ```
 
+### Debug with VS Code
+
+Prerequisites:
+- [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Python Debugger extension](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
+
+To start the server with the debugger:
+1. Open the "Run and Debug" view in VS Code (Cmd+Shift+D).
+2. Select **"Data Commons MCP: Serve HTTP"** from the dropdown.
+3. **Add breakpoints** by clicking in the gutter (to the left of line numbers) in the files you want to debug.
+4. Press F5 or click the green play button.
+
+This will start the server in HTTP mode with API key validation skipped (as configured in `.vscode/launch.json`).
+
+#### How it works
+
+The debug configuration is defined in `.vscode/launch.json`. It tells VS Code to run the `datacommons_mcp.cli` module with specific arguments (e.g., `serve http --skip-api-key-validation`).
+
+You can add more configurations to `.vscode/launch.json` to support different scenarios, such as:
+- Passing different environment variables.
+- Using different command-line arguments.
+
+To add a new configuration, open `.vscode/launch.json` and add a new entry to the `configurations` list.
+
+See https://code.visualstudio.com/docs/debugtest/debugging-configuration for more details.
+
 ### Run Unit Tests
 
 Run unit tests and evals using pyest:
@@ -129,6 +155,13 @@ uv run ruff check # to check files
 uv run ruff format # to format files
 ```
 
+#### VS Code Integration
+Install the [Ruff VS Code extension](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff) to get:
+- Automatic formatting on save
+- Inline error highlighting and suggestions
+- Real-time linting as you type
+
+
 #### Pre Push Hook
 To install a pre push hook for auto formatting and pytesting, run:
 ```bash
@@ -142,14 +175,39 @@ git push origin $BRANCH --no-verify
 ```
 
 
-## Publishing a New Version
+## Releasing to PyPI <a name="release"></a>
+
+### Versioning guidiance <a name="release-versioning"></a>
+
+Use the following guidance for selecting the new version number (MAJOR.MINOR.PATCH):
+*   Increment the **patch** version (third number) for minor fixes or internal implementation details that don't impact agentic clients.
+*   Increment the **minor** version (second number) for changes to tool descriptions, minor changes to tool output structure, or larger internal implementation changes. These changes would be visible to the agentic client but likely not have a major impact.
+*   Increment the **major** version (first number) for changes to the toolset offering, such as deleting, adding, or significantly changing a tool's "contract" with the agentic client.
+      * **IMPORTANT**: Major version changes require follow-up updates to the Gemini CLI extension. See [How version affects the Gemini CLI extension](#gcli-extension) for details.
+
+#### Pre Release Versioning
+**For pre-releases**, you can append `rcN` (e.g., `0.2.0rc1`) to the version number, where `N` is an incrementing number starting from 1. These release candidates will be published to PyPI but are not automatically installed by tools like `pip` or `uv` unless explicitly specified, allowing for testing before a final release. 
+
+   * **Note on RC Versioning:** Always base your release candidate number on the upcoming stable version. For example, the first RC for the 1.3.0 release should be 1.3.0rc1. This ensures that package managers like uv and pip will correctly treat 1.3.0 as the final, newer version once it's published. 
+
+#### How version affects the Gemini CLI extension <a name="gcli-extension"></a>
+
+The `datacommons` Gemini CLI extension locks to a specific `datacommons-mcp` version. This strategy avoids `uv` caching issues and makes it clear which MCP version is running for a given extension version, simplifying debugging and maintenance.
+
+Therefore, when releasing a new stable version of the MCP server, you will likely need to release a new version of the extension as well.
+
+This involves updating the locked `datacommons-mcp` version and the extension's version in its configuration, and then publishing a new extension release. If the MCP release includes major changes, you will also need to update the extension's context file ([`DATACOMMONS.md`](https://github.com/gemini-cli-extensions/datacommons/blob/main/DATACOMMONS.md)) with new tool orchestration instructions. More details on releasing the extension are in the internal Data Commons team docs.  
+
+### Steps to publish a new version
 
 To publish a new version of `datacommons-mcp` to [PyPI](https://pypi.org/project/datacommons-mcp):
 
 1. **Update the version**: Edit `packages/datacommons-mcp/datacommons_mcp/version.py` and increment the version number:
    ```python
-   __version__ = "0.1.3"  # or whatever the new version should be
+   __version__ = "x.y.z"  # see "Versioning guidance" above 
    ```
+
+   * **Reminder**: If you are incrementing the major version, see [How version affects the Gemini CLI extension](#gcli-extension).
 
 2. **Automatic publishing**: When your PR is merged to the main branch, the [GitHub Actions workflow](.github/workflows/build-and-publish-datacommons-mcp.yaml) will:
    - Detect the version bump
@@ -158,3 +216,5 @@ To publish a new version of `datacommons-mcp` to [PyPI](https://pypi.org/project
    - Create a git tag for the release
 
 The package will be automatically available on PyPI after the workflow completes successfully. You can monitor the workflow progress at [https://github.com/datacommonsorg/agent-toolkit/actions](https://github.com/datacommonsorg/agent-toolkit/actions).
+
+3. **Release the Gemini Extension**: After a new, stable `datacommons-mcp` version is published, release a new version of the `datacommons` Gemini CLI extension. Follow the instructions in the internal team docs to update the locked `datacommons-mcp` version and the extension's version, and then publish the extension.  
